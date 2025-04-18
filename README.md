@@ -93,27 +93,22 @@ The hardware implementation of the Q-value update formula is written in Verilog.
 new_q = (1 - alpha) * q_old + alpha * (reward + gamma * max_q)
 ```
 
-### Key Features
-1. **Fixed-Point Arithmetic**:
-   - The hardware uses Q16.16 fixed-point representation for all inputs and outputs.
-   - This is done for the sake of simplicity.
-   - I will try to add floating point support in the future.
+### q_update_q16_16.v
+The `q_update_q16_16.v` file contains the Verilog implementation of the Q-value update formula. It is designed to compute the updated Q-value (`new_q`) using fixed-point arithmetic with 16-bit precision for both integer and fractional parts (Q16.16 format). This ensures efficient hardware implementation while maintaining numerical accuracy.
 
-2. **Pure Combinational Design**:
-   - The hardware is designed as a combinational circuit, allowing for fast computation of the Q-value update.
+#### Key Features:
+- **Inputs**: 
+  - `q_old`: The previous Q-value.
+  - `reward`: The immediate reward.
+  - `max_q`: The maximum Q-value from the next state.
+  - `alpha`: The learning rate.
+  - `gamma`: The discount factor.
+- **Output**:
+  - `new_q`: The updated Q-value.
+- **Fixed-Point Arithmetic**: The module uses Q16.16 fixed-point representation to handle fractional values efficiently in hardware.
+- **Pure Combinational Design**: The implementation may include pipelining to optimize performance and meet timing constraints in hardware.
 
-3. **Inputs and Outputs**:
-   - Inputs:
-     - `q_old`: The old Q-value (fixed-point).
-     - `reward`: The reward received (fixed-point).
-     - `max_q_next`: The maximum Q-value of the next state (fixed-point).
-     - `alpha`: The learning rate (fixed-point).
-     - `gamma`: The discount factor (fixed-point).
-   - Output:
-     - `q_new`: The updated Q-value (fixed-point).
-
-4. **Integration with Python**:
-   - The hardware is invoked from Python using the `hw_q_update.py` script, which writes inputs to a file, runs the Verilog simulation, and reads the output.
+This module is a critical component of reinforcement learning hardware accelerators, enabling efficient computation of Q-value updates in real-time.
 
 ---
 
