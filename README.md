@@ -10,13 +10,89 @@ The project includes:
 3. A comparison framework to validate and benchmark the hardware implementation against the software implementation.
 
 ---
+## How the Flow Works
 
+The flow of the project starts with the Python script `compare_q_update.py` and ends with the Verilog module `q_update_q16_16.v`. Here’s how the files interact with each other:
+
+1. **`compare_q_update.py`**:
+   - This is the entry point of the project. It generates random inputs for the Q-value update formula and computes the results using both software and hardware implementations.
+   - For the hardware implementation, it calls the `hw_batch_q_update` function from `hw_q_update.py`.
+
+2. **`hw_q_update.py`**:
+   - This file acts as the interface between Python and the Verilog hardware. It:
+     - Converts the inputs to fixed-point representation.
+     - Writes the inputs to `input_buffer.txt`.
+     - Invokes the Verilog simulation using the `make` command.
+     - Reads the results from `output_buffer.txt` and converts them back to floating-point representation.
+
+3. **`q_update_q16_16.v`**:
+   - This Verilog module implements the Q-value update formula using fixed-point arithmetic.
+   - It reads the inputs from `input_buffer.txt`, computes the updated Q-values, and writes the results to `output_buffer.txt`.
+
+4. **Back to `compare_q_update.py`**:
+   - The script reads the hardware results from `hw_q_update.py`, compares them with the software results, and reports the number of matches, mismatches, and the time taken by both implementations.
+
+### Visualization of the Flow
+
+```plaintext
++-----------------------+
+| compare_q_update.py   |
+| (Entry Point)         |
++-----------------------+
+           |
+           v
++-----------------------+
+| hw_q_update.py        |
+| (Hardware Interface)  |
++-----------------------+
+           |
+           v
++-----------------------+
+|       Write           |
+|  input_buffer.txt     |
+| (Input for Verilog)   |
++-----------------------+
+           |
+           v
++-----------------------+
+| test_q_update_hw.py   |
+| (cocotb TestBench)    |
++-----------------------+
+           |
+           v
++-----------------------+
+| q_update_q16_16.v     |
+| (Verilog Module)      |
++-----------------------+
+           |
+           v
++-----------------------+
+| test_q_update_hw.py   |
+|  cocotb writes the    |
+| output_buffer.txt     |
+| (Output from Verilog) |
++-----------------------+
+           |
+           v
++-----------------------+
+| hw_q_update.py        |
+| (Result Conversion)   |
++-----------------------+
+           |
+           v
++-----------------------+
+| compare_q_update.py   |
+| (Comparison & Report) |
++-----------------------+
+```
+
+---
 ## How to Run `compare_q_update.py`
 
 ### Prerequisites
 1. Python 3.x installed on your system.
-2. Required Python libraries: `random`, `time`.
-3. A working Verilog simulation environment (e.g., ModelSim, Icarus Verilog) for hardware execution.
+2. Required Python libraries: `cocotb`, `gymnasium`.
+3. A working Verilog simulation environment (e.g., Verilator, VCS) for hardware execution.
 4. Ensure the `hw_q_update.py` file is correctly configured to invoke the Verilog simulation.
 
 ### Steps to Run
