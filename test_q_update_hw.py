@@ -1,5 +1,5 @@
-# test_q_update_hw.py
 import cocotb
+from cocotb.triggers import Timer
 
 def from_fixed(val):
     if val & 0x80000000:
@@ -9,19 +9,22 @@ def from_fixed(val):
 @cocotb.test()
 async def test_q_update_hw(dut):
     with open("input_buffer.txt", "r") as f:
-        line = f.readline()
-        q_old, reward, max_q_next, alpha, gamma = map(int, line.strip().split())
+        lines = f.readlines()
 
-    dut.q_old.value = q_old
-    dut.reward.value = reward
-    dut.max_q_next.value = max_q_next
-    dut.alpha.value = alpha
-    dut.gamma.value = gamma
+    results = []
+    for line in lines:
+        q_old, reward, max_q, alpha, gamma = map(int, line.strip().split())
 
-    await cocotb.triggers.Timer(1, units="ns")  # give combinational logic time to settle
+        dut.q_old.value = q_old
+        dut.reward.value = reward
+        dut.max_q_next.value = max_q
+        dut.alpha.value = alpha
+        dut.gamma.value = gamma
 
-    q_new_fixed = dut.q_new.value.integer
-    q_new_float = from_fixed(q_new_fixed)
+        await Timer(1, units="ns")
+        results.append(from_fixed(dut.q_new.value.integer))
 
     with open("output_buffer.txt", "w") as f:
-        f.write(f"{q_new_float:.6f}\n")
+        for val in results:
+            f.write(f"{val:.6f}\n")
+
