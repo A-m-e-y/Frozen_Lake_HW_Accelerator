@@ -1,0 +1,6 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1744959899" />
+    <testcase name="test_q_update_hw" classname="test_q_update_hw" file="/mnt/d/PSU/HW_For_AI_teuscher/Week_3/Frozen_Lake_HW_Accelerator/test_q_update_hw.py" lineno="9" time="0.010540485382080078" sim_time_ns="1.001" ratio_time="94.96716362813842" />
+  </testsuite>
+</testsuites>
